@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Partiful Auto Apply Settings</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Partiful Auto Apply</h1>
+      <p>Save your profile details once and automate RSVP + questionnaire flows.</p>
+    </header>
+
+    <section id="profile-section">
+      <h2>Profile Basics</h2>
+      <form id="profile-form" class="card">
+        <label>Email
+          <input type="email" name="email" required maxlength="500">
+        </label>
+        <label>Full name
+          <input type="text" name="fullName" maxlength="200">
+        </label>
+        <label>LinkedIn URL
+          <input type="url" name="linkedin" maxlength="500">
+        </label>
+        <label>Company name
+          <input type="text" name="company" maxlength="200">
+        </label>
+        <label>Industry
+          <input type="text" name="industry" maxlength="200">
+        </label>
+        <label>Startup description (1 sentence)
+          <textarea name="startupBlurb" maxlength="500"></textarea>
+        </label>
+        <label>Achievement highlight
+          <textarea name="achievement" maxlength="500"></textarea>
+        </label>
+        <label>What are you looking for?
+          <textarea name="ask" maxlength="500"></textarea>
+        </label>
+        <label>RSVP comment (optional)
+          <textarea name="rsvpComment" maxlength="500"></textarea>
+        </label>
+        <div class="form-actions">
+          <button type="submit">Save profile</button>
+          <span class="status" id="profile-status"></span>
+        </div>
+      </form>
+    </section>
+
+    <section id="dropdown-section">
+      <h2>Dropdown Preferences</h2>
+      <div class="card">
+        <p>Track option labels you run into and choose your preferred response. The content script matches by label and selects the preferred item.</p>
+        <div id="dropdown-list"></div>
+        <button id="add-dropdown" type="button">Add dropdown rule</button>
+      </div>
+    </section>
+
+    <section id="question-section">
+      <h2>Custom Question Responses</h2>
+      <div class="card">
+        <p>Handle host-specific prompts. Supports exact, contains, or regex label matches.</p>
+        <div id="question-list"></div>
+        <button id="add-question" type="button">Add question rule</button>
+      </div>
+    </section>
+
+    <section id="rsvp-section">
+      <h2>RSVP Defaults</h2>
+      <form id="rsvp-form" class="card">
+        <label>RSVP choice
+          <select name="choice">
+            <option value="going">Going</option>
+            <option value="cant_go">Can't Go</option>
+          </select>
+        </label>
+        <label>Attendee count label
+          <input type="text" name="attendeeLabel" maxlength="100" placeholder="e.g. 1 attendee">
+        </label>
+        <label class="inline">
+          <input type="checkbox" name="autoSubmit">
+          Auto-click Continue after filling popup
+        </label>
+        <label>Submit delay (ms)
+          <input type="number" name="submitDelay" min="0" step="100" value="1000">
+        </label>
+        <label class="inline">
+          <input type="checkbox" name="includeComment">
+          Include saved comment when available
+        </label>
+        <div class="form-actions">
+          <button type="submit">Save RSVP defaults</button>
+          <span class="status" id="rsvp-status"></span>
+        </div>
+      </form>
+    </section>
+
+    <section id="automation-section">
+      <h2>Automation Queue</h2>
+      <form id="automation-form" class="card">
+        <label>Event URLs (one per line)
+          <textarea name="eventList" rows="6" placeholder="https://partiful.com/e/...\nhttps://partiful.com/e/...\n"></textarea>
+        </label>
+        <label>Max concurrent tabs
+          <input type="number" name="maxConcurrent" min="1" max="5" value="1">
+        </label>
+        <label>Open tab stay duration (ms)
+          <input type="number" name="visitDuration" min="1000" step="500" value="5000">
+        </label>
+        <label class="inline">
+          <input type="checkbox" name="keepTabsOpen">
+          Keep tabs open after completion (for debugging)
+        </label>
+        <label class="inline">
+          <input type="checkbox" name="makeTabsVisible">
+          Make tabs visible (so you can watch the filling)
+        </label>
+        <div class="form-actions">
+          <button type="submit">Save automation settings</button>
+          <span class="status" id="automation-status"></span>
+        </div>
+      </form>
+      <div class="card" id="automation-controls">
+        <button type="button" id="start-automation">Start queue</button>
+        <button type="button" id="pause-automation">Pause</button>
+        <button type="button" id="clear-automation">Clear progress</button>
+        <button type="button" id="test-one">Test single event (manual mode)</button>
+        <div id="automation-log"></div>
+      </div>
+    </section>
+  </main>
+
+  <template id="dropdown-template">
+    <fieldset class="dropdown-rule">
+      <legend>Dropdown rule</legend>
+      <label>Rule name
+        <input type="text" name="title" placeholder="e.g. Job title" maxlength="120">
+      </label>
+      <label>Label matchers (comma separated)
+        <input type="text" name="matchers" placeholder="What is your job title?,Job title" maxlength="500">
+      </label>
+      <label>Preferred option text
+        <input type="text" name="preferred" maxlength="200">
+      </label>
+      <label>Fallback options (comma separated)
+        <input type="text" name="fallbacks" maxlength="500">
+      </label>
+      <button type="button" class="remove-rule">Remove</button>
+    </fieldset>
+  </template>
+
+  <template id="question-template">
+    <fieldset class="question-rule">
+      <legend>Question rule</legend>
+      <label>Match type
+        <select name="matchType">
+          <option value="exact">Exact</option>
+          <option value="contains">Contains</option>
+          <option value="regex">Regex</option>
+        </select>
+      </label>
+      <label>Pattern
+        <input type="text" name="pattern" maxlength="500">
+      </label>
+      <label>Answer type
+        <select name="answerType">
+          <option value="text">Text input</option>
+          <option value="dropdown">Dropdown</option>
+        </select>
+      </label>
+      <label>Answer value
+        <input type="text" name="value" maxlength="500">
+      </label>
+      <button type="button" class="remove-rule">Remove</button>
+    </fieldset>
+  </template>
+
+  <script src="options.js"></script>
+</body>
+</html>

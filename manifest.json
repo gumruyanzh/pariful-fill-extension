@@ -1,0 +1,42 @@
+{
+  "manifest_version": 3,
+  "name": "Partiful Auto Apply",
+  "version": "0.1.0",
+  "description": "Automates RSVP and questionnaire flows on Partiful events based on saved profile data.",
+  "permissions": [
+    "storage",
+    "scripting",
+    "tabs"
+  ],
+  "host_permissions": [
+    "https://*.partiful.com/*",
+    "https://www.tech-week.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "options_page": "options/options.html",
+  "action": {
+    "default_title": "Partiful Auto Apply"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.tech-week.com/calendar/*"
+      ],
+      "js": [
+        "content/discover.js"
+      ],
+      "run_at": "document_end"
+    },
+    {
+      "matches": [
+        "https://*.partiful.com/e/*"
+      ],
+      "js": [
+        "content/partiful.js"
+      ],
+      "run_at": "document_end"
+    }
+  ]
+}
